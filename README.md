@@ -2,7 +2,7 @@
 ![](https://img.shields.io/github/license/huoxiangzuo/HiFuse)  
 This repo. is the official implementation of "**HiFuse: Global and Local Feature Hierarchical Fusion Network for Medical Image Classification**"  
 Authors: Xiangzuo Huo, Aolun Li, Shengwei Tian, et al.  
-**Enjoy the code and find its convience to produce more awesome works!**
+Enjoy the code and find its convience to produce more awesome works!
 
 ## Overview
 ![paper1_1_01(1)](https://user-images.githubusercontent.com/57312968/170870503-0b2c1728-daa8-4f80-a79b-d66c6748ac83.png)
@@ -25,7 +25,7 @@ Authors: Xiangzuo Huo, Aolun Li, Shengwei Tian, et al.
 * Run `python test.py`
 
 ## TensorBoard
-Run `tensorboard --logdir model_logs --port 6006` to view training progress
+Run `tensorboard --logdir runs --port 6006` to view training progress
 
 ## Reference
 Some of the codes in this repo are borrowed from:  

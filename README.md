@@ -2,7 +2,7 @@
 ![](https://img.shields.io/github/license/huoxiangzuo/HiFuse)  
 This repo. is the official implementation of "**HiFuse: Global and Local Feature Hierarchical Fusion Network for Medical Image Classification**"  
 Authors: Xiangzuo Huo, Aolun Li, Shengwei Tian, et al.  
-Enjoy the code and find its convience to produce more awesome works!
+Enjoy the code and find its convenience to produce more awesome works!
 
 ## Overview
 ![paper1_1_01(1)](https://user-images.githubusercontent.com/57312968/170870503-0b2c1728-daa8-4f80-a79b-d66c6748ac83.png)
@@ -35,4 +35,4 @@ WZMIAOMIAO: https://github.com/WZMIAOMIAO/deep-learning-for-image-processing
 
 ## Citation
 
-If you find our paper/code are helpful, please consider citing:
+If you find our paper/code is helpful, please consider citing:

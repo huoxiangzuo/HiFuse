@@ -1,6 +1,6 @@
 # HiFuse
-![](https://img.shields.io/github/license/huoxiangzuo/HiFuse)
-This repo. is the official implementation of our paper **HiFuse: Global and Local Feature Hierarchical Fusion Network for Medical Image Classification**  
+![](https://img.shields.io/github/license/huoxiangzuo/HiFuse)  
+This repo. is the official implementation of "**HiFuse: Global and Local Feature Hierarchical Fusion Network for Medical Image Classification**"  
 Authors: Xiangzuo Huo, Aolun Li, Shengwei Tian, et al.  
 **Enjoy the code and find its convience to produce more awesome works!**
 
@@ -9,6 +9,7 @@ Authors: Xiangzuo Huo, Aolun Li, Shengwei Tian, et al.
 
 ## Grad-CAM results in ablation experiments
 <img src="https://user-images.githubusercontent.com/57312968/170870613-41fbdeb6-f8db-4117-9a2c-133e0ee23d18.png" width="66%"/>
+
 ## Run
 0. Requirements:
 * python3.6/3.7/3.8

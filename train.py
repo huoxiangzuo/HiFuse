@@ -67,7 +67,7 @@ def main(args):
     if args.RESUME == False:
         if args.weights != "":
             assert os.path.exists(args.weights), "weights file: '{}' not exist.".format(args.weights)
-            weights_dict = torch.load(args.weights, map_location=device)
+            weights_dict = torch.load(args.weights, map_location=device)['state_dict']
 
             # Delete the weight of the relevant category
             for k in list(weights_dict.keys()):
@@ -140,9 +140,9 @@ def main(args):
                 "epoch": epoch,
                 'lr_schedule': lr_scheduler.state_dict()
             }
-            if not os.path.isdir("./model_weight/test"):
-                os.mkdir("./model_weight/test")
-            torch.save(checkpoint, './model_weight/test/ckpt_best_%s.pth' % (str(epoch)))
+            if not os.path.isdir("./model_weight/checkpoint"):
+                os.mkdir("./model_weight/checkpoint")
+            torch.save(checkpoint, './model_weight/checkpoint/ckpt_best_%s.pth' % (str(epoch)))
 
         #add loss, acc and lr into tensorboard
         print("[epoch {}] accuracy: {}".format(epoch, round(val_acc, 3)))

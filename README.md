@@ -4,6 +4,9 @@ This repo. is the official implementation of "**HiFuse: Global and Local Feature
 Authors: Xiangzuo Huo, Aolun Li, Shengwei Tian, et al.  
 Enjoy the code and find its convenience to produce more awesome works!
 
+***06/06/2022***
+Pretrained models of [HiFuse on ImageNet-1K](https://drive.google.com/file/d/1HnvSncnU9GzeIXnskGXD8_gigZlr3lzX/view?usp=sharing) are released.
+
 ## Overview
 ![paper1_1_01(1)](https://user-images.githubusercontent.com/57312968/170870503-0b2c1728-daa8-4f80-a79b-d66c6748ac83.png)
 

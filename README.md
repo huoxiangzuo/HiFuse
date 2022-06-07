@@ -32,9 +32,9 @@ Run `tensorboard --logdir runs --port 6006` to view training progress
 
 ## Reference
 Some of the codes in this repo are borrowed from:  
-Swin Transformer: https://github.com/microsoft/Swin-Transformer  
-ConvNeXt: https://github.com/facebookresearch/ConvNeXt  
-WZMIAOMIAO: https://github.com/WZMIAOMIAO/deep-learning-for-image-processing
+* [Swin Transformer](https://github.com/microsoft/Swin-Transformer)  
+* [ConvNeXt](https://github.com/facebookresearch/ConvNeXt)  
+* [WZMIAOMIAO](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing)
 
 ## Citation
 

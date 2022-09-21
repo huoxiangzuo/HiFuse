@@ -1,21 +1,21 @@
 # HiFuse
 ![](https://img.shields.io/github/license/huoxiangzuo/HiFuse)  
-This repo. is the official implementation of "**HiFuse: Global and Local Feature Hierarchical Fusion Network for Medical Image Classification**"  
-Authors: Xiangzuo Huo, Aolun Li, Shengwei Tian, et al.  
+This repo. is the official implementation of "HiFuse: Hierarchical Multi-Scale Feature Fusion Network for Medical Image Classification"  
+Authors: Xiangzuo Huo, Gang Sun, Shengwei Tian, Yan Wang, Long Yu, Jun Long, Wendong Zhang and Aolun Li.  
 Enjoy the code and find its convenience to produce more awesome works!
 
-***06/06/2022***
-Pretrained models of [HiFuse on ImageNet-1K](https://drive.google.com/file/d/1HnvSncnU9GzeIXnskGXD8_gigZlr3lzX/view?usp=sharing) are released.
-
 ## Overview
-![paper1_1_01(1)](https://user-images.githubusercontent.com/57312968/170870503-0b2c1728-daa8-4f80-a79b-d66c6748ac83.png)
+<img width="1395" alt="figure1" src="https://user-images.githubusercontent.com/57312968/191570017-34f30c13-9d8e-4776-a118-de968aebdb19.png" width="80%">
+
+## HFF Block
+<img width="1424" alt="figure2s" src="https://user-images.githubusercontent.com/57312968/191570496-c62e04dc-8baf-4b01-a6ba-03c24c5a744d.png" width="70%">
 
 ## Grad-CAM results in ablation experiments
-<img src="https://user-images.githubusercontent.com/57312968/170870613-41fbdeb6-f8db-4117-9a2c-133e0ee23d18.png" width="66%"/>
+<img src="https://user-images.githubusercontent.com/57312968/191570242-4425944d-4017-45c6-a3f7-f977376766a2.png" width="70%">
 
 ## Run
 0. Requirements:
-* python3.6/3.7/3.8
+* python3
 * pytorch 1.10
 * torchvision 0.11.1
 1. Training:

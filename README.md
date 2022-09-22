@@ -1,6 +1,6 @@
 # HiFuse
 ![](https://img.shields.io/github/license/huoxiangzuo/HiFuse)  
-This repo. is the official implementation of "HiFuse: Hierarchical Multi-Scale Feature Fusion Network for Medical Image Classification"  
+This repo. is the official implementation of [HiFuse: Hierarchical Multi-Scale Feature Fusion Network for Medical Image Classification](https://arxiv.org/pdf/2209.10218.pdf)
 Authors: Xiangzuo Huo, Gang Sun, Shengwei Tian, Yan Wang, Long Yu, Jun Long, Wendong Zhang and Aolun Li.  
 Enjoy the code and find its convenience to produce more awesome works!
 
@@ -10,8 +10,8 @@ Enjoy the code and find its convenience to produce more awesome works!
 ## HFF Block
 <img width="1424" alt="figure2s" src="https://user-images.githubusercontent.com/57312968/191570496-c62e04dc-8baf-4b01-a6ba-03c24c5a744d.png" width="70%">
 
-## Grad-CAM results in ablation experiments
-<img src="https://user-images.githubusercontent.com/57312968/191570242-4425944d-4017-45c6-a3f7-f977376766a2.png" width="70%">
+## Visual Inspection of HiFuse
+<img src="https://user-images.githubusercontent.com/57312968/191570242-4425944d-4017-45c6-a3f7-f977376766a2.png" width="75%">
 
 ## Run
 0. Requirements:
@@ -39,3 +39,13 @@ Some of the codes in this repo are borrowed from:
 ## Citation
 
 If you find our paper/code is helpful, please consider citing:
+
+```bibtex
+@article{huo2022hifuse,
+  title={HiFuse: Hierarchical Multi-Scale Feature Fusion Network for Medical Image Classification},
+  author={Huo, Xiangzuo and Sun, Gang and Tian, Shengwei and Wang, Yan and Yu, Long and Long, Jun and Zhang, Wendong and Li, Aolun}, 
+  journal={arXiv preprint arXiv:2209.10218},  
+  year={2022}
+}
+```
+

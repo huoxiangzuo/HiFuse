@@ -83,7 +83,7 @@ def plot_data_loader_image(data_loader):
         for i in range(plot_num):
             # [C, H, W] -> [H, W, C]
             img = images[i].numpy().transpose(1, 2, 0)
-            img = (img * [0.229, 0.224, 0.225] + [0.485, 0.456, 0.406]) * 255
+            img = (img * [0.5, 0.5, 0.5] + [0.5, 0.5, 0.5]) * 255
             label = labels[i].item()
             plt.subplot(1, plot_num, i+1)
             plt.xlabel(class_indices[str(label)])
@@ -207,7 +207,7 @@ def create_lr_scheduler(optimizer,
                         warmup=True,
                         warmup_epochs=1,
                         warmup_factor=1e-3,
-                        end_factor=1e-6):
+                        end_factor=1e-2):
     assert num_step > 0 and epochs > 0
     if warmup is False:
         warmup_epochs = 0

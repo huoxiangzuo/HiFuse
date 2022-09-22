@@ -11,13 +11,13 @@ def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"using {device} device.")
 
-    num_classes = 5
+    num_classes = 7
     img_size = 224
     data_transform = transforms.Compose(
-        [transforms.Resize(int(img_size * 1.14)),
+        [transforms.Resize(int(256)),
          transforms.CenterCrop(img_size),
          transforms.ToTensor(),
-         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
 
     # load image
     img_path = "test.jpg"

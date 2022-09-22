@@ -37,16 +37,15 @@ class DropPath(nn.Module):
 
 class main_model(nn.Module):
 
-    def __init__(self, num_classes, patch_size=4, in_chans=3, embed_dim=96, depths=(2,2,6,2),
-                 num_heads=(3,6,12,24), window_size=7, mlp_ratio=4., qkv_bias=True, drop_rate=0,
-                 attn_drop_rate=0, drop_path_rate=0.1, norm_layer=nn.LayerNorm, patch_norm=True,
-                 use_checkpoint=False,
-                 conv_depths: list = [3, 3, 9, 3], conv_dims: list = [96, 192, 384, 768], conv_drop_path_rate: float = 0.,
-                 conv_layer_scale_init_value: float = 1e-6,
+    def __init__(self, num_classes, patch_size=4, in_chans=3, embed_dim=96, depths=(2, 2, 2, 2),
+                 num_heads=(3, 6, 12, 24), window_size=7, qkv_bias=True, drop_rate=0,
+                 attn_drop_rate=0, drop_path_rate=0., norm_layer=nn.LayerNorm, patch_norm=True,
+                 use_checkpoint=False, HFF_dp=0.,
+                 conv_depths=(2, 2, 2, 2), conv_dims=(96, 192, 384, 768), conv_drop_path_rate=0.,
                  conv_head_init_scale: float = 1., **kwargs):
         super().__init__()
 
-        ###### ConvNeXt Branch Setting #######
+        ###### Local Branch Setting #######
 
         self.downsample_layers = nn.ModuleList()   # stem + 3 stage downsample
         stem = nn.Sequential(nn.Conv2d(in_chans, conv_dims[0], kernel_size=4, stride=4),
@@ -65,8 +64,7 @@ class main_model(nn.Module):
         # Build stacks of blocks in each stage
         for i in range(4):
             stage = nn.Sequential(
-                *[Block(dim=conv_dims[i], drop_rate=dp_rates[cur + j],
-                        layer_scale_init_value=conv_layer_scale_init_value)
+                *[Local_block(dim=conv_dims[i], drop_rate=dp_rates[cur + j])
                   for j in range(conv_depths[i])]
             )
             self.stages.append((stage))
@@ -77,7 +75,7 @@ class main_model(nn.Module):
         self.conv_head.weight.data.mul_(conv_head_init_scale)
         self.conv_head.bias.data.mul_(conv_head_init_scale)
 
-        ###### Swin Transformer Branch Setting ######
+        ###### Global Branch Setting ######
 
         self.num_classes = num_classes
         self.num_layers = len(depths)
@@ -86,7 +84,6 @@ class main_model(nn.Module):
 
         # The channels of stage4 output feature matrix
         self.num_features = int(embed_dim * 2 ** (self.num_layers - 1))
-        self.mlp_ratio = mlp_ratio
 
         # split image into non-overlapping patches
         self.patch_embed = PatchEmbed(
@@ -102,7 +99,6 @@ class main_model(nn.Module):
                                   depth=depths[i_layer],
                                   num_heads=num_heads[i_layer],
                                   window_size=window_size,
-                                  mlp_ratio=self.mlp_ratio,
                                   qkv_bias=qkv_bias,
                                   drop=drop_rate,
                                   attn_drop=attn_drop_rate,
@@ -116,7 +112,6 @@ class main_model(nn.Module):
                                   depth=depths[i_layer],
                                   num_heads=num_heads[i_layer],
                                   window_size=window_size,
-                                  mlp_ratio=self.mlp_ratio,
                                   qkv_bias=qkv_bias,
                                   drop=drop_rate,
                                   attn_drop=attn_drop_rate,
@@ -130,7 +125,6 @@ class main_model(nn.Module):
                                   depth=depths[i_layer],
                                   num_heads=num_heads[i_layer],
                                   window_size=window_size,
-                                  mlp_ratio=self.mlp_ratio,
                                   qkv_bias=qkv_bias,
                                   drop=drop_rate,
                                   attn_drop=attn_drop_rate,
@@ -144,7 +138,6 @@ class main_model(nn.Module):
                                   depth=depths[i_layer],
                                   num_heads=num_heads[i_layer],
                                   window_size=window_size,
-                                  mlp_ratio=self.mlp_ratio,
                                   qkv_bias=qkv_bias,
                                   drop=drop_rate,
                                   attn_drop=attn_drop_rate,
@@ -160,10 +153,10 @@ class main_model(nn.Module):
 
         ###### Hierachical Feature Fusion Block Setting #######
 
-        self.fu1 = HFF_block(ch_1=96, ch_2=96, r_2=16, ch_int=96, ch_out=96, drop_rate=drop_rate / 2)
-        self.fu2 = HFF_block(ch_1=192, ch_2=192, r_2=16, ch_int=192, ch_out=192, drop_rate=drop_rate / 2)
-        self.fu3 = HFF_block(ch_1=384, ch_2=384, r_2=16, ch_int=384, ch_out=384, drop_rate=drop_rate / 2)
-        self.fu4 = HFF_block(ch_1=768, ch_2=768, r_2=16, ch_int=768, ch_out=768, drop_rate=drop_rate / 2)
+        self.fu1 = HFF_block(ch_1=96, ch_2=96, r_2=16, ch_int=96, ch_out=96, drop_rate=HFF_dp)
+        self.fu2 = HFF_block(ch_1=192, ch_2=192, r_2=16, ch_int=192, ch_out=192, drop_rate=HFF_dp)
+        self.fu3 = HFF_block(ch_1=384, ch_2=384, r_2=16, ch_int=384, ch_out=384, drop_rate=HFF_dp)
+        self.fu4 = HFF_block(ch_1=768, ch_2=768, r_2=16, ch_int=768, ch_out=768, drop_rate=HFF_dp)
 
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):
@@ -179,7 +172,7 @@ class main_model(nn.Module):
 
     def forward(self, imgs):
 
-        ######  Swin Transformer Branch ######
+        ######  Global Branch ######
         x_s, H, W = self.patch_embed(imgs)
         x_s = self.pos_drop(x_s)
         x_s_1, H, W = self.layers1(x_s, H, W)
@@ -197,7 +190,7 @@ class main_model(nn.Module):
         x_s_4 = torch.transpose(x_s_4, 1, 2)
         x_s_4 = x_s_4.view(x_s_4.shape[0], -1, 7, 7)
 
-        ######  ConvNeXt Branch ######
+        ######  Local Branch ######
         x_c = self.downsample_layers[0](imgs)
         x_c_1 = self.stages[0](x_c)
         x_c = self.downsample_layers[1](x_c_1)
@@ -217,7 +210,7 @@ class main_model(nn.Module):
 
         return x_fu
 
-##### ConvNeXt Component #####
+##### Local Feature Block Component #####
 
 class LayerNorm(nn.Module):
     r""" LayerNorm that supports two data formats: channels_last (default) or channels_first.
@@ -247,8 +240,8 @@ class LayerNorm(nn.Module):
             x = self.weight[:, None, None] * x + self.bias[:, None, None]
             return x
 
-class Block(nn.Module):
-    r""" ConvNeXt Block. There are two equivalent implementations:
+class Local_block(nn.Module):
+    r""" Local Feature Block. There are two equivalent implementations:
     (1) DwConv -> LayerNorm (channels_first) -> 1x1 Conv -> GELU -> 1x1 Conv; all in (N, C, H, W)
     (2) DwConv -> Permute to (N, H, W, C); LayerNorm (channels_last) -> Linear -> GELU -> Linear; Permute back
     We use (2) as we find it slightly faster in PyTorch
@@ -256,17 +249,13 @@ class Block(nn.Module):
     Args:
         dim (int): Number of input channels.
         drop_rate (float): Stochastic depth rate. Default: 0.0
-        layer_scale_init_value (float): Init value for Layer Scale. Default: 1e-6.
     """
-    def __init__(self, dim, drop_rate=0., layer_scale_init_value=1e-6):
+    def __init__(self, dim, drop_rate=0.):
         super().__init__()
-        self.dwconv = nn.Conv2d(dim, dim, kernel_size=7, padding=3, groups=dim)  # depthwise conv
+        self.dwconv = nn.Conv2d(dim, dim, kernel_size=3, padding=1, groups=dim)  # depthwise conv
         self.norm = LayerNorm(dim, eps=1e-6, data_format="channels_last")
-        self.pwconv1 = nn.Linear(dim, 4 * dim)  # pointwise/1x1 convs, implemented with linear layers
+        self.pwconv = nn.Linear(dim, dim)  # pointwise/1x1 convs, implemented with linear layers
         self.act = nn.GELU()
-        self.pwconv2 = nn.Linear(4 * dim, dim)
-        self.gamma = nn.Parameter(layer_scale_init_value * torch.ones((dim,)),
-                                  requires_grad=True) if layer_scale_init_value > 0 else None
         self.drop_path = DropPath(drop_rate) if drop_rate > 0. else nn.Identity()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -274,13 +263,9 @@ class Block(nn.Module):
         x = self.dwconv(x)
         x = x.permute(0, 2, 3, 1)  # [N, C, H, W] -> [N, H, W, C]
         x = self.norm(x)
-        x = self.pwconv1(x)
+        x = self.pwconv(x)
         x = self.act(x)
-        x = self.pwconv2(x)
-        if self.gamma is not None:
-            x = self.gamma * x
         x = x.permute(0, 3, 1, 2)  # [N, H, W, C] -> [N, C, H, W]
-
         x = shortcut + self.drop_path(x)
         return x
 
@@ -301,24 +286,35 @@ class HFF_block(nn.Module):
         self.W_g = Conv(ch_2, ch_int, 1, bn=True, relu=False)
         self.Avg = nn.AvgPool2d(2, stride=2)
         self.Updim = Conv(ch_int//2, ch_int, 1, bn=True, relu=True)
-        self.W = Conv(ch_int*2, ch_int, 3, bn=True, relu=True)
-        self.W3 = Conv(ch_int * 3, ch_int, 3, bn=True, relu=True)
-        self.relu = nn.ReLU(inplace=True)
+        self.norm1 = LayerNorm(ch_int * 3, eps=1e-6, data_format="channels_first")
+        self.norm2 = LayerNorm(ch_int * 2, eps=1e-6, data_format="channels_first")
+        self.norm3 = LayerNorm(ch_1 + ch_2 + ch_int, eps=1e-6, data_format="channels_first")
+        self.W3 = Conv(ch_int * 3, ch_int, 1, bn=True, relu=False)
+        self.W = Conv(ch_int * 2, ch_int, 1, bn=True, relu=False)
 
-        self.residual = Residual(ch_1 + ch_2 + ch_int, ch_out)
-        self.dropout = nn.Dropout2d(drop_rate)
-        self.drop_rate = drop_rate
+        self.gelu = nn.GELU()
+
+        self.residual = IRMLP(ch_1 + ch_2 + ch_int, ch_out)
+        self.drop_path = DropPath(drop_rate) if drop_rate > 0. else nn.Identity()
 
     def forward(self, l, g, f):
 
-        W_local = self.W_l(l)   # local feature from ConvNeXt
-        W_global = self.W_g(g)   # global feature from SwinTransformer
+        W_local = self.W_l(l)   # local feature from Local Feature Block
+        W_global = self.W_g(g)   # global feature from Global Feature Block
         if f is not None:
             W_f = self.Updim(f)
             W_f = self.Avg(W_f)
-            X_f = self.W3(torch.cat([W_f, W_local, W_global], 1))
+            shortcut = W_f
+            X_f = torch.cat([W_f, W_local, W_global], 1)
+            X_f = self.norm1(X_f)
+            X_f = self.W3(X_f)
+            X_f = self.gelu(X_f)
         else:
-            X_f = self.W(torch.cat([W_local, W_global], 1))
+            shortcut = 0
+            X_f = torch.cat([W_local, W_global], 1)
+            X_f = self.norm2(X_f)
+            X_f = self.W(X_f)
+            X_f = self.gelu(X_f)
 
         # spatial attention for ConvNeXt branch
         l_jump = l
@@ -337,14 +333,14 @@ class HFF_block(nn.Module):
         output=self.sigmoid(max_out+avg_out)
         g = self.sigmoid(output) * g_jump
 
-        fuse = self.residual(torch.cat([g, l, X_f], 1))
-        if self.drop_rate > 0:
-            return self.dropout(fuse)
-        else:
-            return fuse
+        fuse = torch.cat([g, l, X_f], 1)
+        fuse = self.norm3(fuse)
+        fuse = self.residual(fuse)
+        fuse = shortcut + self.drop_path(fuse)
+        return fuse
 
 class Conv(nn.Module):
-    def __init__(self, inp_dim, out_dim, kernel_size=3, stride=1, bn=False, relu=True, bias=True):
+    def __init__(self, inp_dim, out_dim, kernel_size=3, stride=1, bn=False, relu=True, bias=True, group=1):
         super(Conv, self).__init__()
         self.inp_dim = inp_dim
         self.conv = nn.Conv2d(inp_dim, out_dim, kernel_size, stride, padding=(kernel_size-1)//2, bias=bias)
@@ -364,80 +360,31 @@ class Conv(nn.Module):
             x = self.relu(x)
         return x
 
-class Residual(nn.Module):
+#### Inverted Residual MLP
+class IRMLP(nn.Module):
     def __init__(self, inp_dim, out_dim):
-        super(Residual, self).__init__()
-        self.relu = nn.ReLU(inplace=True)
+        super(IRMLP, self).__init__()
+        self.conv1 = Conv(inp_dim, inp_dim, 3, relu=False, bias=False, group=inp_dim)
+        self.conv2 = Conv(inp_dim, inp_dim * 4, 1, relu=False, bias=False)
+        self.conv3 = Conv(inp_dim * 4, out_dim, 1, relu=False, bias=False, bn=True)
+        self.gelu = nn.GELU()
         self.bn1 = nn.BatchNorm2d(inp_dim)
-        self.conv1 = Conv(inp_dim, int(out_dim / 2), 1, relu=False)
-        self.bn2 = nn.BatchNorm2d(int(out_dim / 2))
-        self.conv2 = Conv(int(out_dim / 2), int(out_dim / 2), 3, relu=False)
-        self.bn3 = nn.BatchNorm2d(int(out_dim / 2))
-        self.conv3 = Conv(int(out_dim / 2), out_dim, 1, relu=False)
-        self.skip_layer = Conv(inp_dim, out_dim, 1, relu=False)
-        if inp_dim == out_dim:
-            self.need_skip = False
-        else:
-            self.need_skip = True
 
     def forward(self, x):
-        if self.need_skip:
-            residual = self.skip_layer(x)
-        else:
-            residual = x
-        out = self.bn1(x)
-        out = self.relu(out)
-        out = self.conv1(out)
-        out = self.bn2(out)
-        out = self.relu(out)
-        out = self.conv2(out)
-        out = self.bn3(out)
-        out = self.relu(out)
-        out = self.conv3(out)
+
+        residual = x
+        out = self.conv1(x)
+        out = self.gelu(out)
         out += residual
+
+        out = self.bn1(out)
+        out = self.conv2(out)
+        out = self.gelu(out)
+        out = self.conv3(out)
+
         return out
 
-class DoubleConv(nn.Module):
-    def __init__(self, in_channels, out_channels):
-        super().__init__()
-        self.double_conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(out_channels)
-        )
-        self.identity = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1, padding=0),
-                nn.BatchNorm2d(out_channels)
-                )
-        self.relu = nn.ReLU(inplace=True)
-
-    def forward(self, x):
-        return self.relu(self.double_conv(x)+self.identity(x))
-
-# SwinTransformer
-class Mlp(nn.Module):
-    """ MLP as used in Vision Transformer, MLP-Mixer and related networks
-    """
-    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
-        super().__init__()
-        out_features = out_features or in_features
-        hidden_features = hidden_features or in_features
-
-        self.fc1 = nn.Linear(in_features, hidden_features)
-        self.act = act_layer()
-        self.drop1 = nn.Dropout(drop)
-        self.fc2 = nn.Linear(hidden_features, out_features)
-        self.drop2 = nn.Dropout(drop)
-
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.act(x)
-        x = self.drop1(x)
-        x = self.fc2(x)
-        x = self.drop2(x)
-        return x
+####### Shift Window MSA #############
 
 class WindowAttention(nn.Module):
     r""" Window based multi-head self attention (W-MSA) module with relative position bias.
@@ -534,15 +481,15 @@ class WindowAttention(nn.Module):
         x = self.proj_drop(x)
         return x
 
-class SwinTransformerBlock(nn.Module):
-    r""" Swin Transformer Block.
+### Global Feature Block
+class Global_block(nn.Module):
+    r""" Global Feature Block from modified Swin Transformer Block.
 
     Args:
         dim (int): Number of input channels.
         num_heads (int): Number of attention heads.
         window_size (int): Window size.
         shift_size (int): Shift size for SW-MSA.
-        mlp_ratio (float): Ratio of mlp hidden dim to embedding dim.
         qkv_bias (bool, optional): If True, add a learnable bias to query, key, value. Default: True
         drop (float, optional): Dropout rate. Default: 0.0
         attn_drop (float, optional): Attention dropout rate. Default: 0.0
@@ -552,14 +499,13 @@ class SwinTransformerBlock(nn.Module):
     """
 
     def __init__(self, dim, num_heads, window_size=7, shift_size=0,
-                 mlp_ratio=4., qkv_bias=True, drop=0., attn_drop=0., drop_path=0.,
+                 qkv_bias=True, drop=0., attn_drop=0., drop_path=0.,
                  act_layer=nn.GELU, norm_layer=nn.LayerNorm):
         super().__init__()
         self.dim = dim
         self.num_heads = num_heads
         self.window_size = window_size
         self.shift_size = shift_size
-        self.mlp_ratio = mlp_ratio
         assert 0 <= self.shift_size < self.window_size, "shift_size must in 0-window_size"
 
         self.norm1 = norm_layer(dim)
@@ -569,8 +515,8 @@ class SwinTransformerBlock(nn.Module):
 
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
-        mlp_hidden_dim = int(dim * mlp_ratio)
-        self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
+        self.fc1 = nn.Linear(dim, dim)
+        self.act = act_layer()
 
     def forward(self, x, attn_mask):
         H, W = self.H, self.W
@@ -616,15 +562,15 @@ class SwinTransformerBlock(nn.Module):
             x = x[:, :H, :W, :].contiguous()
 
         x = x.view(B, H * W, C)
-
+        x = self.fc1(x)
+        x = self.act(x)
         x = shortcut + self.drop_path(x)
-        x = x + self.drop_path(self.mlp(self.norm2(x)))
 
         return x
 
 class BasicLayer(nn.Module):
     """
-    A basic Swin Transformer layer for one stage.
+    Downsampling and Global Feature Block for one stage.
 
     Args:
         dim (int): Number of input channels.
@@ -653,12 +599,11 @@ class BasicLayer(nn.Module):
 
         # build blocks
         self.blocks = nn.ModuleList([
-            SwinTransformerBlock(
+            Global_block(
                 dim=dim,
                 num_heads=num_heads,
                 window_size=window_size,
                 shift_size=0 if (i % 2 == 0) else self.shift_size,
-                mlp_ratio=mlp_ratio,
                 qkv_bias=qkv_bias,
                 drop=drop,
                 attn_drop=attn_drop,
@@ -704,7 +649,7 @@ class BasicLayer(nn.Module):
             H, W = (H + 1) // 2, (W + 1) // 2
 
         attn_mask = self.create_mask(x, H, W)  # [nW, Mh*Mw, Mh*Mw]
-        for blk in self.blocks:                  # swin block
+        for blk in self.blocks:                  # global block
             blk.H, blk.W = H, W
             if not torch.jit.is_scripting() and self.use_checkpoint:
                 x = checkpoint.checkpoint(blk, x, attn_mask)
@@ -765,7 +710,6 @@ class PatchEmbed(nn.Module):
         _, _, H, W = x.shape
 
         # padding
-        # 如果输入图片的H，W不是patch_size的整数倍，需要进行padding
         pad_input = (H % self.patch_size[0] != 0) or (W % self.patch_size[1] != 0)
         if pad_input:
             # to pad the last 3 dimensions,
@@ -774,7 +718,7 @@ class PatchEmbed(nn.Module):
                           0, self.patch_size[0] - H % self.patch_size[0],
                           0, 0))
 
-        # 下采样patch_size倍
+        # downsample patch_size times
         x = self.proj(x)
         _, _, H, W = x.shape
         # flatten: [B, C, H, W] -> [B, C, HW]
@@ -825,3 +769,22 @@ class PatchMerging(nn.Module):
         x = self.reduction(x)  # [B, H/2*W/2, 2*C]
 
         return x
+
+def HiFuse_Tiny(num_classes: int):
+    model = main_model(depths=(2, 2, 2, 2),
+                     conv_depths=(2, 2, 2, 2),
+                     num_classes=num_classes)
+    return model
+
+
+def HiFuse_Small(num_classes: int):
+    model = main_model(depths=(2, 2, 6, 2),
+                     conv_depths=(2, 2, 6, 2),
+                     num_classes=num_classes)
+    return model
+
+def HiFuse_Base(num_classes: int):
+    model = main_model(depths=(2, 2, 18, 2),
+                     conv_depths=(2, 2, 18, 2),
+                     num_classes=num_classes)
+    return model

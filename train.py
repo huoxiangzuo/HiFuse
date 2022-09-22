@@ -5,9 +5,8 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 from utils import MyDataSet
-from main_model import main_model as create_model
+from main_model import HiFuse_Small as create_model
 from utils import read_train_data, read_val_data, create_lr_scheduler, get_params_groups, train_one_epoch, evaluate
-from torch.utils.tensorboard import SummaryWriter
 
 
 def main(args):
@@ -17,11 +16,10 @@ def main(args):
     print(args)
     print('Start Tensorboard with "tensorboard --logdir=runs", view at http://localhost:6006/')
 
-    tb_writer = SummaryWriter(log_dir="runs")
+    tb_writer = SummaryWriter()
 
     if os.path.exists("./weights") is False:
         os.makedirs("./weights")
-
 
     train_images_path, train_images_label = read_train_data(args.train_data_path)
     val_images_path, val_images_label = read_val_data(args.val_data_path)
@@ -31,11 +29,11 @@ def main(args):
         "train": transforms.Compose([transforms.RandomResizedCrop(img_size),
                                      transforms.RandomHorizontalFlip(),
                                      transforms.ToTensor(),
-                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]),
-        "val": transforms.Compose([transforms.Resize(int(img_size * 1.143)),
+                                     transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
+        "val": transforms.Compose([transforms.Resize(256),
                                    transforms.CenterCrop(img_size),
                                    transforms.ToTensor(),
-                                   transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])}
+                                   transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])}
 
     train_dataset = MyDataSet(images_path=train_images_path,
                               images_class=train_images_label,
@@ -93,7 +91,7 @@ def main(args):
     start_epoch = 0
 
     if args.RESUME:
-        path_checkpoint = "./model_weight/test/ckpt_best_100.pth"
+        path_checkpoint = "./model_weight/checkpoint/ckpt_best_100.pth"
         print("model continue train")
         checkpoint = torch.load(path_checkpoint)
         model.load_state_dict(checkpoint['net'])

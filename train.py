@@ -18,9 +18,6 @@ def main(args):
 
     tb_writer = SummaryWriter()
 
-    if os.path.exists("./weights") is False:
-        os.makedirs("./weights")
-
     train_images_path, train_images_label = read_train_data(args.train_data_path)
     val_images_path, val_images_label = read_val_data(args.val_data_path)
 

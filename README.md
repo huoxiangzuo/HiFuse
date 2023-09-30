@@ -41,11 +41,15 @@ Some of the codes in this repo are borrowed from:
 If you find our paper/code is helpful, please consider citing:
 
 ```bibtex
-@article{huo2022hifuse,
-  title={HiFuse: Hierarchical Multi-Scale Feature Fusion Network for Medical Image Classification},
-  author={Huo, Xiangzuo and Sun, Gang and Tian, Shengwei and Wang, Yan and Yu, Long and Long, Jun and Zhang, Wendong and Li, Aolun}, 
-  journal={arXiv preprint arXiv:2209.10218},  
-  year={2022}
+@article{HUO2024105534,
+title = {HiFuse: Hierarchical multi-scale feature fusion network for medical image classification},
+journal = {Biomedical Signal Processing and Control},
+volume = {87},
+pages = {105534},
+year = {2024},
+issn = {1746-8094},
+doi = {https://doi.org/10.1016/j.bspc.2023.105534},
+url = {https://www.sciencedirect.com/science/article/pii/S1746809423009679}
 }
 ```
 

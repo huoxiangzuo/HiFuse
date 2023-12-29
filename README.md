@@ -1,6 +1,6 @@
 # HiFuse
 ![](https://img.shields.io/github/license/huoxiangzuo/HiFuse)  
-This repo. is the official implementation of [HiFuse: Hierarchical Multi-Scale Feature Fusion Network for Medical Image Classification](https://authors.elsevier.com/a/1hrK86DBR39XUF)    
+This repo. is the official implementation of [HiFuse: Hierarchical Multi-Scale Feature Fusion Network for Medical Image Classification](https://www.sciencedirect.com/science/article/pii/S1746809423009679)    
 Authors: Xiangzuo Huo, Gang Sun, Shengwei Tian, Yan Wang, Long Yu, Jun Long, Wendong Zhang and Aolun Li.  
 Enjoy the code and find its convenience to produce more awesome works!
 

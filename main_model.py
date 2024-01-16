@@ -330,8 +330,7 @@ class HFF_block(nn.Module):
         avg_result=self.avgpool(g)
         max_out=self.se(max_result)
         avg_out=self.se(avg_result)
-        output=self.sigmoid(max_out+avg_out)
-        g = self.sigmoid(output) * g_jump
+        g = self.sigmoid(max_out+avg_out) * g_jump
 
         fuse = torch.cat([g, l, X_f], 1)
         fuse = self.norm3(fuse)

@@ -62,3 +62,6 @@ If you find our paper/code is helpful, please consider citing:
 }
 ```
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/image?repos=huoxiangzuo/HiFuse&type=date&legend=top-left)](https://www.star-history.com/?repos=huoxiangzuo%2FHiFuse&type=date&legend=top-left)

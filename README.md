@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=huoxiangzuo&project=HiFuse&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 # HiFuse
 ![](https://img.shields.io/github/license/huoxiangzuo/HiFuse)  
 This repo. is the official implementation of [HiFuse: Hierarchical Multi-Scale Feature Fusion Network for Medical Image Classification](https://www.sciencedirect.com/science/article/pii/S1746809423009679)    
